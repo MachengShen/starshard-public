@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://starshard.clawishmacheng.com/sitemap.xml

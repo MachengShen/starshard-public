@@ -1,0 +1,17 @@
+{{ define "main" }}
+<article class="post">
+  <header class="post-header">
+    <h1>{{ .Title }}</h1>
+    <div class="post-meta">
+      {{ if not .Date.IsZero }}<time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006-01-02" }}</time>{{ end }}
+      {{ if .Params.author }} · {{ .Params.author }}{{ end }}
+      {{ if .Params.section_label }} · {{ .Params.section_label }}{{ end }}
+    </div>
+    {{ with .Description }}<p class="post-description">{{ . }}</p>{{ end }}
+  </header>
+  <div class="post-body">
+    {{ .Content }}
+  </div>
+  {{ with .Params.footnote }}<aside class="post-footnote">{{ . | markdownify }}</aside>{{ end }}
+</article>
+{{ end }}

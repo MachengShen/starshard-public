@@ -1,0 +1,67 @@
+baseURL = "https://starshard.clawishmacheng.com/"
+languageCode = "en-us"
+title = "Starshard"
+enableRobotsTXT = true
+enableEmoji = false
+disableKinds = ["taxonomy", "term"]
+buildDrafts = false
+buildFuture = false
+canonifyURLs = true
+relativeURLs = false
+
+[params]
+  description = "A finite physical system that builds, updates, and deploys internal structure sufficient for prediction, intervention, and control."
+  author = "Macheng Shen"
+  github = "https://github.com/MachengShen"
+  twitter = "https://x.com/MachengShen"
+  email = "macshen93@gmail.com"
+  license = "Essays: CC BY-SA 4.0 · Code: AGPL-3.0 · Specs: Apache-2.0 · Safety charter: CC0"
+  rss = "/feed.xml"
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+
+[outputFormats]
+  [outputFormats.RSS]
+    mediatype = "application/rss+xml"
+    baseName = "feed"
+
+[markup]
+  [markup.highlight]
+    style = "monokai"
+    lineNos = false
+    codeFences = true
+    noClasses = true
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[module]
+  [[module.mounts]]
+    source = "content"
+    target = "content"
+  [[module.mounts]]
+    source = "essays"
+    target = "content/essays"
+  [[module.mounts]]
+    source = "receipts"
+    target = "content/receipts"
+  [[module.mounts]]
+    source = "manifest"
+    target = "content/manifest"
+  [[module.mounts]]
+    source = "about"
+    target = "content/about"
+  [[module.mounts]]
+    source = "static"
+    target = "static"
+  [[module.mounts]]
+    source = "layouts"
+    target = "layouts"
+
+[permalinks]
+  essays = "/essays/:contentbasename/"
+  receipts = "/receipts/:contentbasename/"
+  manifest = "/manifest/:contentbasename/"
+  about = "/about/:contentbasename/"

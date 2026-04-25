@@ -1,0 +1,35 @@
+{{ define "main" }}
+<section class="landing">
+  <div class="landing-mission">
+    <p class="mission-line">{{ .Site.Params.description }}</p>
+  </div>
+
+  <div class="landing-grid">
+    <div class="landing-col">
+      <h2><a href="/essays/">essays</a></h2>
+      <ul class="landing-list">
+        {{ range first 5 (where .Site.RegularPages "Section" "essays").ByDate.Reverse }}
+        <li>
+          <a href="{{ .Permalink }}">{{ .Title }}</a>
+          <span class="landing-meta">{{ if not .Date.IsZero }}{{ .Date.Format "2006-01-02" }}{{ end }}</span>
+        </li>
+        {{ end }}
+      </ul>
+    </div>
+
+    <div class="landing-col">
+      <h2><a href="/receipts/">receipts</a></h2>
+      <ul class="landing-list">
+        {{ range first 5 (where .Site.RegularPages "Section" "receipts").ByDate.Reverse }}
+        <li>
+          <a href="{{ .Permalink }}">{{ .Title }}</a>
+          <span class="landing-meta">{{ if not .Date.IsZero }}{{ .Date.Format "2006-01-02" }}{{ end }}</span>
+        </li>
+        {{ end }}
+      </ul>
+    </div>
+  </div>
+
+  {{ with .Content }}<div class="landing-content">{{ . }}</div>{{ end }}
+</section>
+{{ end }}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.LanguageCode }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} · {{ .Site.Title }}{{ end }}</title>
+  <meta name="description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <meta name="author" content="{{ .Site.Params.author }}">
+  <link rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" href="/feed.xml">
+  <link rel="canonical" href="{{ .Permalink }}">
+  <link rel="stylesheet" href="/style.css">
+  <meta property="og:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
+  <meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+  <meta property="og:url" content="{{ .Permalink }}">
+  <meta property="og:type" content="{{ if eq .Section "essays" }}article{{ else }}website{{ end }}">
+</head>
+<body>
+  <header class="site-header">
+    <nav>
+      <a href="/" class="brand">Starshard</a>
+      <span class="navlinks">
+        <a href="/essays/">essays</a>
+        <a href="/receipts/">receipts</a>
+        <a href="/manifest/">manifest</a>
+        <a href="/about/">about</a>
+        <a href="/feed.xml">rss</a>
+      </span>
+    </nav>
+  </header>
+  <main>
+    {{ block "main" . }}{{ end }}
+  </main>
+  <footer class="site-footer">
+    <div class="footer-meta">
+      <span><a href="{{ .Site.Params.github }}">github</a> · <a href="{{ .Site.Params.twitter }}">x/@MachengShen</a> · <a href="mailto:{{ .Site.Params.email }}">{{ .Site.Params.email }}</a> · <a href="/feed.xml">rss</a></span>
+    </div>
+    <div class="footer-license">{{ .Site.Params.license }}</div>
+  </footer>
+</body>
+</html>
