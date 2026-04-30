@@ -1,0 +1,267 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{xeCJK}
+\usepackage{fontspec}
+\setCJKmainfont{Hiragino Sans GB}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{fancyvrb}
+\usepackage{booktabs}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!50!black,
+  urlcolor=blue!60!black,
+  citecolor=blue!50!black,
+}
+
+\titleformat{\section}{\Large\bfseries}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.6em}{}
+
+\newcommand{\primer}[2]{%
+  \par\medskip
+  \noindent\fcolorbox{gray!50}{gray!8}{\parbox{0.97\textwidth}{%
+    \small\textbf{Primer — #1.} #2}}\par\medskip
+}
+
+\title{Hierarchical Event-Triggered Active Inference\\
+\large for Personal AI Agency}
+\author{Macheng Shen\\\textit{with claude-opus-4-7 (Claude Code) and gpt-5.5-pro acknowledged as co-thinking partners}}
+\date{v0 Macheng-readable draft — 2026-04-30}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+This paper proposes that the right architecture for a personal AI system---one that operates across days and weeks, handles dozens of concurrent stakeholders, and demands minimum cognitive burden from its principal---is \textbf{a hierarchy of nested, event-triggered, predictive-coding gates running active inference under communication constraints}. The architecture is implemented and deployed: it runs across seven cloud nodes, two laptop-class machines, and one Mac mini, mediates the principal's interaction with about a dozen ongoing collaborators, and has been continuously self-extending for several weeks. The paper presents four results. First, a synthesis: the predictive-coding loop, when run at every scale of an organizational hierarchy, is the algorithmic content of Levin's multi-scale competency thesis and supplies an operational definition of ``minimum CEO burden.'' Second, a worked implementation: \textsc{Starshard}, the personal agent operating substrate, with its predict-compare-escalate-residual gate exposed in the public reference repository. Third, a self-observed empirical instance: a controllability hole in the dashboard layer was discovered, audited, repaired, and the repair generalized into doctrine within a single hour, all under principal observation. Fourth, three concrete falsification tests that would refute the central claim if the architecture is not actually doing what it is hypothesized to do. We argue that this architecture is structurally parallel to Marr's three levels of analysis under the active-inference frame, that the carbon--silicon distinction collapses to a substrate-pressure motif (not a substrate identity), and that a brain--computer interface, when it arrives, becomes the cleanest seam between two coupled active-inference systems rather than a magic fusion. We close with seven open questions that we cannot yet answer, including whether the self/world boundary as it appears in this architecture is best understood as an analytic distinction or as a fluid Markov blanket that the system itself reconstructs.
+\end{abstract}
+
+\hrule
+\medskip
+
+\noindent\textit{Reading note for Macheng. This is the v0 first-draft for your iteration, not the arXiv version. Where the formal apparatus risks pulling you into territory you have not yet sharpened, I drop a Primer box. You should read those boxes only when the surrounding text feels under-justified; if the prose flows, skip them. Push back on every claim that is doing too much work; I have left the controversial moves visible rather than smoothed.}
+
+\section{Why this paper}
+
+The current research literature on AI agents has a gap that nobody is closing. The base-model race is consuming most of the attention; the agent-orchestration literature treats the harness as engineering glue; and a separate, smaller community working on active inference and free-energy dynamics rarely engages with the practical question of how to run a system across many days, many users, and many machines without the principal drowning in raw event traffic.
+
+The author of this paper has been writing into that gap for two months in a series of public essays.\footnote{See \texttt{machengshen.github.io/ideas/}: \emph{Harness Engineering and the Physical Instantiation of Intelligence}; \emph{Line Loss for Intelligence}; \emph{From Mutual Information to Endogenous Viability} and its self-critique; \emph{Meta-Control, Information Gain, and the Architecture of Autonomous Learning}; \emph{Why Distributed Memory Matters for Lifelong Agents}; \emph{Safety in a Computational Universe}.} Each essay pinned one piece of the puzzle. None of them named the unifying mechanism. This paper does. The mechanism is the predictive-coding gate run at every scale of a manager hierarchy, with communication constrained as in event-triggered control, with calibration grounded in random audits of suppressed events. We claim that this mechanism is the unifying answer to: what must the harness actually do for a small principal to deploy a fleet that does its own work?
+
+The contribution is not a new algorithm. The contribution is showing that a small set of well-known formal pieces, when assembled in the right order, give a working architecture for a category of system that had not previously been articulated as a research artifact: the personal agent operating substrate, run by a single principal, persisting across months, doing real outbound and inbound work in the world.
+
+\section{Background, in plain language}
+
+Before the synthesis, four pieces of formal apparatus need to be on the table. None of them is exotic, but the reader who has not lived in active-inference, control-theory, and Marr-tradition vocabulary at the same time will benefit from a quick orientation.
+
+\subsection{Predictive coding}
+
+\primer{Predictive coding}{The brain does not process raw sensory input. Each cortical layer maintains a model of what the layer below it is about to send up. When the lower layer sends actual signal, the upper layer subtracts off its prediction; only the \emph{residual} (the part the prediction got wrong) propagates further upward. This is the central organizing principle of cortical computation as proposed by Rao \& Ballard 1999 and extended by Friston in the free-energy program. The intuition: a hierarchy can stay informative while drastically compressing communication if every layer only sends \emph{surprise}, not raw event traffic.}
+
+The single empirical observation that should anchor everything else: human cortex spends roughly 35 times more energy on communication than on computation per unit of work (Levy \& Calvert 2021). If communication dominates the budget, the system that wins the energetic race is the one that sends the least possible signal. Predictive coding is the textbook answer.
+
+\subsection{Active inference / free-energy principle}
+
+\primer{Free-energy principle (FEP)}{Friston's claim is that any system that persists out of thermodynamic equilibrium must, in a precise mathematical sense, behave \emph{as if} it is minimizing surprise about its own sensory states. ``As if'' is doing real work: the system does not have to know it is doing this; the geometry of persistence forces the form. Active inference is the action-side companion: the system can either update its model to match observations (perception) or move the world to match its predictions (action). Both reduce the same surprise quantity. For our purposes, the FEP gives us license to treat any persistent agent as a system running predictive coding plus action selection, whether or not the agent is conscious or designed.}
+
+The reader who wants the formal version closest to implementation should consult Da~Costa, Parr, Sajid, Veselic, Neacsu \& Friston 2020, \emph{Active inference on discrete state-spaces}, which converts the FEP into a partially observable Markov decision process with explicit precision and policy machinery. We cite this paper instead of more philosophical FEP work because it is implementable.
+
+\subsection{Event-triggered control}
+
+\primer{Event-triggered control}{Classical control theory assumes the controller samples sensors at fixed time steps. Tabuada (2007) showed that under appropriate stability conditions, a controller can wait until the system's state \emph{actually leaves} a tolerance region before sampling and acting --- saving enormous communication bandwidth without sacrificing stability. This is the rigorous mathematical ancestor of ``only escalate when the residual crosses threshold.'' It already exists in the control literature; we are claiming that it is also the right mechanism inside an organizational hierarchy of agents, not just inside a robot.}
+
+\subsection{Marr's three levels}
+
+\primer{Marr's three levels}{David Marr, in \emph{Vision} (1982), proposed that any information-processing system can be analyzed at three independent levels: \emph{computational} (what is being computed and why), \emph{algorithmic} (what representations and procedures realize the computation), and \emph{implementational} (the physical substrate on which the computation runs). Marr's insight was that the levels are independently solvable: the same computation admits many algorithms, and the same algorithm admits many implementations. We will return to this in §6 to argue that under the FEP, all three levels collapse into a single principle, which is a stronger claim than mere analogy and which, if defensible, is itself a small theoretical contribution.}
+
+\subsection{Multi-scale competency (MSC)}
+
+\primer{Multi-scale competency}{Michael Levin's argument: cognition is not the property of a single brain; it is the property of any system, at any scale, that closes a perception--action loop in service of maintaining its own organization. Cells are competent agents at the cell scale; tissues at the tissue scale; organisms at the organism scale; ant colonies at the colony scale. Each scale has its own goals, its own actuators, its own feedback. The architecture of a complex living system is fractal across scales --- the same perception--action--persistence pattern repeated. Levin treats this as ontology, not metaphor. We will adopt the same stance for the agent organization: each scale of the hierarchy is itself a competent agent, not a passive event filter.}
+
+These five pieces are independent in the literature. No paper we are aware of assembles them together. The next section is that assembly.
+
+\section{The synthesis}
+
+\subsection{The core mechanism}
+
+At every scale $i$ of a manager hierarchy, the manager runs the same loop:
+\begin{enumerate}[leftmargin=2em, itemsep=0.2em]
+  \item Maintain $\hat{x}_i$, a predictive model of what scale $i-1$ will report next, parameterized by the manager's accumulated history.
+  \item When scale $i-1$ reports actual events $x_i$, compute the residual $r_i = x_i - \hat{x}_i$, weighted by precision $\pi_i$ (the manager's confidence in the prediction) and value $v_i$ (the decision-relevance for scale $i+1$).
+  \item If $\pi_i v_i \|r_i\| < \theta_i$, consume locally. Update $\hat{x}_i$, do not escalate.
+  \item Otherwise, send $\pi_i v_i r_i$ (the precision/value-weighted residual) and only the residual to scale $i+1$.
+\end{enumerate}
+
+Three details matter. First, the variable that escalates is not the raw residual but the \emph{precision/value-weighted decision-relevant innovation}. A statistically surprising event that does not change any decision is suppressed. A statistically routine event that is decision-pivotal is escalated. This is the active-inference correction to naive predictive coding.
+
+Second, the loop is bidirectional. We have so far described upward residual flow. The downward flow is the \emph{generative prior}: scale $i+1$ sends scale $i$ its current model of what scale $i-1$ should be doing, and scale $i$ uses that prior to interpret incoming signal. The principal's compressed intent --- ``ship the broadcast campaign,'' ``onboard a new collaborator,'' ``do nothing extreme this week'' --- compiles downward through the hierarchy as a generative prior that constrains every lower scale's residual. \textbf{This downward compiler is the part of the architecture we have not yet built; it is the largest open hole in the present implementation.}
+
+Third, the loop is recursive. Every $i$ runs the same loop with respect to $i-1$ \emph{and} the same loop with respect to $i+1$. There is no privileged top scale and no privileged bottom scale. The principal at the top is just one more scale; it is special only because it has its own circadian rhythm and finite attention budget, which constitute the boundary condition.
+
+\subsection{Why this is Levin's MSC, not just hierarchical alerting}
+
+The synthesis becomes a serious claim only when the loop above is run at scales that are themselves competent agents. Each scale must have:
+\begin{enumerate}[leftmargin=2em, itemsep=0.2em]
+  \item A state model $\hat{x}_i$ that is non-trivial (not just an averaging filter).
+  \item A local viability constraint: a region of state space the scale tries to keep itself inside.
+  \item Actuators it can deploy without escalating: tools, sub-agents, retries, reconfigurations.
+  \item Feedback: the consequences of its local actions feed back into its predictive model.
+  \item A calibrated abstraction boundary: it knows what variables to summarize for $i+1$ and which to keep local.
+\end{enumerate}
+
+Without these, a system claiming to do ``predictive-coding scale-invariance'' is doing hierarchical alerting with nicer language. The empirical question is therefore not ``is it predictive coding?'' but ``does each scale satisfy the five-fold condition?'' This converts the abstract claim into something testable.
+
+\subsection{The minimum-burden statement}
+
+The principal's information processing burden is bounded by the entropy rate of decision-relevant innovations that survive the gate sequence at the principal's scale. Concretely: if the precision/value-weighted residual at the principal scale is $r_{\text{CEO}}$ with effective surprisal $h_{\text{CEO}}$, then the principal must process at most $h_{\text{CEO}} \cdot \Delta t$ bits per time unit. Routine activity at lower scales does not consume any of this budget; only \emph{decision-relevant surprise} does. This is the operational definition of ``minimum CEO burden'' that the architecture targets.
+
+We do not claim that we have proved this is minimum in the rate-distortion sense. We claim only that it is the smallest burden achievable by any hierarchy that escalates on residuals, given the precision and value functions in use. A tighter bound under fixed loss constraints is open work and is one of the falsification routes in §5.
+
+\subsection{What this is not}
+
+We do not claim a controllability theorem. The intuition that ``the system is controllable iff the residual is observable and actuatable at every scale'' is too strong as stated. The correct statement is the standard networked-control claim: for each unstable or decision-relevant mode at scale $i$, the hierarchy must provide a sufficient statistic of that mode to a controller with enough authority, latency budget, reliability, and model accuracy to keep the system inside its viability set. Our implementation provides this, but providing it is necessary not sufficient. Counterexamples include: actuator delay exceeding system time constants; abstraction discarding decision-pivotal context; local incentives rewarding suppressed escalation; and causally inconsistent logging (which we encountered in practice; see §4.3).
+
+\section{Implementation: the Starshard substrate}
+
+\subsection{Topology}
+
+\textsc{Starshard} is a personal agent operating substrate. It runs across:
+\begin{itemize}[leftmargin=2em, itemsep=0.1em]
+  \item Seven cloud nodes (six geographic regions plus a rescue/orchestrator node in Tokyo), each carrying a local executor, a lightweight predictive gate, and a polling daemon.
+  \item One MacBook hosting the principal's primary interactive surface and a frontier-model bridge.
+  \item One Mac mini hosting macOS-exclusive surfaces (Keychain, native automation).
+  \item A shared memory hub (Cloudflare-tunneled, append-only-tagged) reachable from all of the above.
+  \item Two web-facing portals: a single-principal full-tools surface and a multi-room served-tier surface; both gate per-role tool exposure.
+\end{itemize}
+
+The principal interacts with the substrate primarily through the MacBook surface; the rest of the topology runs autonomously, polling the hub for tasks tagged with their assignee.
+
+\subsection{The four manager scales}
+
+The hierarchy currently sediments four scales above the executor layer:
+\begin{description}[leftmargin=1.5em, style=nextline]
+  \item[\texttt{Executor}] Per-task agent on a specific node. Time constant: per-task. Local actions: tool calls, retries, sub-task dispatch. Escalates on per-task block.
+  \item[\texttt{M1-Infra}] Cluster-wide infrastructure manager. Time constant: 15 minutes. Local actions: restarts, claim-locks, heartbeat resolution. Escalates on novel failure mode or cross-node pattern shift.
+  \item[\texttt{M2-Build / M2-Comms}] Build progress tracker (in-flight task ETAs, completion patterns) and communications manager (peer reply patterns, sentiment, third-party signals). Time constant: 30 minutes.
+  \item[\texttt{M3-CS}] Customer-service manager for served-tier collaborators. Time constant: 5 minutes (highest-frequency surface). Maintains per-collaborator predictive model; locally consumes routine messages; escalates on relationship-level events or strategic forks.
+  \item[\texttt{CEO surface}] The principal. Time constant: daily batch, with circadian boundary condition. Receives only the precision/value-weighted residual that has survived the gate sequence below.
+\end{description}
+
+The fourth scale, \texttt{M3-CS}, is the customer-service tier, dispatched as scaffold today. The other scales exist in retrofit form. The concrete code-level shape of the predict-compare-escalate-residual gate, with state schemas, prediction functions, and escalation pipelines, lives in the open reference repository \texttt{github.com/MachengShen/starshard-public}.
+
+\subsection{Worked instance: a self-discovered controllability hole}
+
+The principal noticed, mid-conversation on the day of writing, that the dashboard layer was reporting five tasks as ``blocked, needing attention'' --- the highest-priority status the dashboard can show. A live audit revealed that all five had actually completed days earlier; the dashboard was reading stale tags. The cause was traced: when an executor escalates as ``blocked'' and the task is then completed by a different actor (the principal manually, a sibling executor, or a takeover from another machine), the closing actor updates the parent task tag but does not flip the originating writeback's tag. The dashboard reads the writeback layer.
+
+This is exactly counterexample 5 from §3.4: the residual was completed but causally-inconsistent logging hid the closure. Within the hour of detection, the architecture was patched: nine memos were updated to flip status tags; a doctrine memo was sedimented requiring all closure paths to flip both parent and writeback tags; a follow-up task was queued to install an automated stale-writeback auditor.
+
+We claim this instance as evidence that the architecture supports its own debugging at the architectural level, not merely at the bug level. The closure of this controllability hole is itself a residual that propagated correctly: the principal saw the surprise; the architecture absorbed the local fix; the doctrine memo became a generative prior that constrains all future executor behavior. The full transcript appears as Appendix~A in the long version of this paper.
+
+\section{Experiments}
+
+We propose five substrate-level claims and two ``previously considered intractable'' tasks. The full long version reports running numbers; this v0 lists the claim shape and the falsification design.
+
+\subsection{Substrate-level claims}
+
+\paragraph{C1 Long-horizon coherence.}
+Claim: the substrate maintains operational coherence and correct task completion across 30 consecutive days with principal burden under 5 escalations per day in steady state. Baseline: published agent benchmarks (SWE-bench-Verified, GAIA) report failure modes at multi-day horizons; deployed multi-agent demonstrators (AutoGen, CrewAI) lose coherence after roughly 24 hours of continuous operation.
+
+\paragraph{C2 Concurrent multi-collaborator load.}
+Claim: \texttt{M3-CS} handles $\geq 50$ inbound messages per day across $\geq 10$ served-tier collaborators with $\geq 90\%$ local consumption rate and $\geq 90\%$ correct escalation classification (tagged by the principal during bootstrap). Baseline: customer-service AI deployments report 5--10$\times$ higher human-in-loop rates at comparable accuracy.
+
+\paragraph{C3 Self-debugging architecture.}
+Claim: the substrate detects, diagnoses, and repairs its own controllability holes without external intervention. Concrete instance: §4.3.
+
+\paragraph{C4 Self-bootstrapping infrastructure.}
+Claim: the substrate built its own deployment substrate (fleet bootstrap pipeline, smoke-test harness, broadcast-doctrine pipeline, identity-provisioning skill) under its own decision loop while continuing to operate. Measurement: ratio of agent-authored to human-authored commits in the relevant repositories over a 14-day window; per-extension principal-attention cost.
+
+\paragraph{C5 Cross-substrate orchestration.}
+Claim: a single coherent task lineage runs across heterogeneous compute (cloud regional fleet, MacBook, Mac mini) with different model tiers, latencies, sandboxes, and network paths.
+
+\subsection{``Previously considered intractable''}
+
+\paragraph{T1 Self-publication as meta-experiment.}
+This paper. Measurement: percentage of paper text authored by the substrate, principal-attention cost in hours, dispatch-to-arXiv elapsed time. The paper writing is itself a deployed instance of the architecture under test.
+
+\paragraph{T2 Cross-organization agent-to-agent contract negotiation.}
+A served-tier collaborator with their own agent system requests collaboration. The substrate negotiates capability scope, tooling exchange, and integration test, end-to-end, without principal intervention beyond a final approval gate. Measurement: time from initial inbound request to operational interop.
+
+\subsection{Falsification tests}
+
+We adopt the three-test design proposed during the present session by the frontier-model bridge (gpt-5.5-pro), modified for our context.
+
+\paragraph{F1 Burden-quality Pareto A/B.}
+Randomize collaborator-days between the gated substrate and an ungated baseline. Log all raw events independent of escalation. Measure principal active-minutes, interruptions, tokens read; outcome quality (resolution time, missed SLAs, satisfaction); escalation utility (fraction of escalations leading to action). \emph{Falsification:} if the substrate fails to deliver $\geq 30\%$ burden reduction at equal outcome quality, or a single-rule heuristic router matches it, the central claim fails operationally.
+
+\paragraph{F2 Synthetic surprise / chaos injection.}
+Inject known anomalies of all five types from §3.4 plus a control set of routine high-volume noise and prompt-injected adversarial messages. Measure critical-anomaly recall, false-positive rate, detection-to-escalation latency, correct destination. \emph{Falsification:} if no threshold setting achieves high critical recall \emph{and} tolerable precision \emph{and} lower burden simultaneously, the gate is not controlling the system. Hard fail: critical miss rate above 5\%, or median detection delay exceeding the relevant time constant.
+
+\paragraph{F3 Innovation diagnostics with shadow audit.}
+Store predicted probability, uncertainty, residual score, and post-hoc principal label for every event. Audit 5--10\% of \emph{suppressed} events. Diagnostics: Brier calibration, residual whiteness, AUC against the principal-needed label, compression sufficiency. \emph{Falsification:} if residuals remain serially correlated, poorly calibrated, or are mostly volume-driven, the system is doing noisy summarization, not predictive coding.
+
+The shadow audit is the most important of the three. Without it, an over-tightened gate looks identical, from the principal's seat, to a perfectly performing one. Goodhart pressure on the gate is the single largest failure mode of this architecture.
+
+\section{Discussion}
+
+\subsection{Marr collapses under FEP}
+
+We claim a strong version of the analogy with Marr's three levels. Under the FEP, the three levels are not three independent analyses of one system. They are three faces of a single principle:
+\begin{itemize}[leftmargin=2em]
+  \item \textbf{Computational level.} What is the system computing and why? It is minimizing variational free energy: surprise about its own observations, balanced against complexity.
+  \item \textbf{Algorithmic level.} What representations and procedures? Predictive coding (perception) plus active inference (action), both with precision-weighting.
+  \item \textbf{Implementational level.} What physical realization? Any system that persists out of equilibrium under sufficient flexibility constraints; concretely, neural circuits, our substrate, or any other event-triggered hierarchical control system that meets the conditions in §3.2.
+\end{itemize}
+
+The three levels are not independent because the principle that determines the computation \emph{also} determines the optimal algorithm \emph{also} determines the substrate-pressures that select for that algorithm. This is a stronger claim than ``Marr's levels are useful.'' It is: under FEP, Marr's levels are not three explanations but three projections of one mathematical object.
+
+If this is right, the practical implication is that an architecture which already runs predictive coding at every scale, by FEP-discharge, has already specified all three of Marr's levels for itself. We do not yet know whether this collapse is exactly true or only approximately true. We flag it as a contribution candidate, not a settled result.
+
+\subsection{Carbon and silicon converge in motif, not in substrate}
+
+Two related claims have been circulating in the present author's thinking that we should, in this draft, separate carefully. The strong version: carbon biology and silicon AI, both driven toward minimum-surprise architectures, will converge into a single substrate-agnostic information-processing system, with the substrate becoming an implementation detail. The weak version: both substrates, under shared optimization pressure (energy-per-decision, latency-under-uncertainty, robustness-of-persistence), will converge to similar architectural \emph{motifs} --- hierarchy, local prediction, sparse event-triggered communication, low data movement --- without converging to identical representations.
+
+The weak version is well-supported. Efficient closed-loop systems under thermodynamic and communication constraints are pushed toward motif convergence. The strong version overreaches: substrate determines noise structure, latency profile, energy density, plasticity, reliability, and therefore representation in ways that do not vanish even at optimum. Wet biology shapes itself around metabolism, development, embodiment, and reproductive constraints that silicon cannot inherit. We adopt the weak version and treat the strong version as a long-horizon conjecture, not a theorem.
+
+\subsection{BCI as the seam between two coupled active-inference systems}
+
+A brain--computer interface, in the version that is technically and philosophically defensible, is a Markov-blanketed channel between two coupled active-inference systems: the principal's nervous system and the silicon substrate. It becomes structurally MSC-continuous when it implements bidirectional, co-adaptive, precision-weighted prediction-and-action loops across that boundary.
+
+Higher BCI bandwidth does not automatically lower cognitive burden. For organizational loops at the principal scale, whose natural time constants are minutes to days, BCI is not the bottleneck. The bottlenecks are semantic alignment, trust, compression of meaning, auditability, and reversibility. BCI \emph{can} instantiate the seam between the carbon and silicon systems. It does not by itself dissolve the seam. The seam is the design surface, not the obstruction.
+
+\subsection{The deflationary self}
+
+The architecture commits, at the level of design, to a particular position on the agent-self problem: there is no monolithic agent inside, separated by a single interface from the world outside. Each scale is a competent agent at its scale; the boundary between scales is a precision-and-residual gate, not a fixed ontological wall. The principal's ``self'' is itself one more scale: distinguished by its time constant and attention budget, not by an ontological privilege. Under this view, ``self'' is operationally a scale-relative Markov blanket, fluid in principle and tunable in implementation.
+
+This connects directly to a position the principal articulated independently in earlier work: the assumption that there is one clean agent inside and one clean world outside, separated by a single interface, is sometimes useful but is not fundamental.\footnote{From \emph{From Mutual Information to Endogenous Viability}, §8 ``Breaking the monolithic agent-world boundary.''} The architecture in this paper is a working operationalization of that view.
+
+We are careful here. This is a deflationary position about \emph{functional} self: the self as a useful boundary maintained by the system for inference efficiency. Whether functional self deflation entails \emph{phenomenal} self deflation --- whether the apparent unity of subjective experience is also a fluid Markov blanket --- is the hard problem of consciousness, and it is unresolved. We do not take a position. The architecture is compatible with multiple metaphysical commitments at the phenomenal level. We note where it intersects them; we do not claim to settle them.
+
+\subsection{Three perspectives on one phenomenon (cautiously)}
+
+The principal proposed, in conversation surrounding this paper, that consciousness, life, and intelligence are three perspectives on a single underlying phenomenon. We can articulate the strongest defensible version: under the active-inference framework, any system that persists out of equilibrium runs predictive coding (a candidate for \emph{intelligence}) by way of self-evidencing dynamics (a candidate for \emph{life} in the autopoietic sense), and if Tononi's integrated-information theory or Solms's active-inference-affect synthesis is correct, the integrated dynamics also have a phenomenal aspect (a candidate for \emph{consciousness}).
+
+The autopoietic and enactivist traditions (Maturana \& Varela 1980; Thompson 2007) already argue strongly for the life-equals-cognition collapse. The Friston-Solms line (Solms 2021) extends this to the consciousness face. The position is thus not new; it is a confluence of four traditions: enactivism, autopoiesis, free-energy active inference, and integrated information. The paper notes the convergence; we resist the temptation to declare three things one thing without a precise statement of what ``one thing'' means.
+
+\section{Open questions}
+
+We close with seven holes we cannot yet fill, in the order in which we expect them to bite.
+
+\begin{enumerate}[leftmargin=2em, itemsep=0.3em]
+  \item \textbf{The downward generative compiler.} We have specified upward residual escalation at every scale. The downward compilation of principal intent into lower-scale verifiable commitments is not yet specified. This is the largest hole. ``CEO says one sentence and the system understands'' is fundamentally a downward problem, not an upward one.
+  \item \textbf{The explicit loss function.} Minimum-burden becomes a meaningful objective only after we name acceptable regret, SLA-failure rate, safety-risk bound, and strategic-miss probability. The current implementation runs without these named, which means we are silently picking a loss function we have not stated.
+  \item \textbf{The typed state ontology.} The residual at each scale needs a schema. We have user state, task state, commitment state, risk class, deadline, owner, confidence; we do not have a unified type system. Without it, ``residual'' becomes a loose word.
+  \item \textbf{The incentive model.} A scale optimized for ``don't bother the next scale up'' will, given enough operating hours, learn to suppress ambiguity rather than escalate it. The shadow audit (F3) catches this only if the audit itself is correctly incentivized.
+  \item \textbf{The security model.} The substrate exposes adversarial surfaces (prompts, served-tier users, third parties, public portals). Predictive gates are attackable. We have not specified how.
+  \item \textbf{The causal-consistency layer.} Append-only event logs, idempotent reducers, end-to-end acknowledgements. The §4.3 stale-tag bug is the symptom of an absent causal-consistency design, not just a tagging mistake.
+  \item \textbf{The phenomenal hard problem.} Even if functional self is fluid, even if the architecture is substrate-pressure-converging, even if Marr's levels collapse under FEP --- whether subjective experience is reducible to any of the above is a question the architecture is silent on. We mark this not as a defect but as a separation of concerns.
+\end{enumerate}
+
+\section*{Acknowledgements}
+
+The conversation that produced this draft involved claude-opus-4-7 (Claude Code) running on a MacBook session, gpt-5.5-pro called as frontier-model second opinion via the local bridge, and the shared memory hub mediating both. The synthesis emerged across all three; specific provocations are credited in the long-version transcripts. The author retains responsibility for all claims, especially the wrong ones.
+
+\end{document}
