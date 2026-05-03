@@ -51,6 +51,9 @@ relativeURLs = false
     source = "manifest"
     target = "content/manifest"
   [[module.mounts]]
+    source = "launch"
+    target = "content/launch"
+  [[module.mounts]]
     source = "about"
     target = "content/about"
   [[module.mounts]]
@@ -64,4 +67,5 @@ relativeURLs = false
   essays = "/essays/:contentbasename/"
   receipts = "/receipts/:contentbasename/"
   manifest = "/manifest/:contentbasename/"
+  launch = "/launch/:contentbasename/"
   about = "/about/:contentbasename/"
