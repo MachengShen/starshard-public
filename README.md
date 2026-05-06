@@ -20,3 +20,18 @@ receipts/
 ```
 
 Maintained by [@MachengShen](https://github.com/MachengShen).
+
+## Publish path
+
+The public source of truth is this GitHub repository. The static site is built by
+Hugo and deployed by GitHub Actions to GitHub Pages on every push to `main`.
+
+The custom domain `starshard.clawishmacheng.com` may lag if its Cloudflare Pages
+hook is stale. When in doubt, use the GitHub Pages URL from the latest
+`Deploy public site` workflow run.
+
+To publish a new receipt from a public-safe markdown body:
+
+```bash
+scripts/publish-receipt.sh "YYYY-MM-DD short title" "short-slug" path/to/body.md
+```
