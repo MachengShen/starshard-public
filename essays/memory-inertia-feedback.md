@@ -10,6 +10,8 @@ section_label: essay
 
 *Epistemic status: a self-contained derivation plus a small reproducible toy, done in an afternoon. The core linear-response results (Sections 3–4) I am confident in — they are textbook Mori–Zwanzig once you see the sign. The framing claims (Sections 1, 6) are `design_hypothesis`: offered to invite critique, not asserted as settled. Disclosure, per the norm of this blog: the derivation and this write-up were produced through my agent system, which I then checked. Corrections welcome.*
 
+*Corrections (2026-07-02, after a detailed external technical review): the core result stands — the algebra, the signs, and the pole condition are correct, and "monotone forgetting is not inertia; inertial memory must store and return" survives. Three things below were fixed: (1) the wrong-sign mass is not a physical "runaway" — only a truncated approximation is unstable; (2) a negative `γ_eff` in Channel B does **not** mean the exact system is unstable — with `k, B, gA > 0` it is always stable, the low-frequency expansion has just left its range of validity; (3) "passive" was too broad and the Higgs analogy was stated too strongly. The corrected claims are marked inline.*
+
 ---
 
 ## 1. The question
@@ -81,7 +83,9 @@ Compare term by term with the inertial form `k − m ω² − iγ ω`:
 m (inertia)     = − γ₁ = − ∫ s K < 0  ✗  (WRONG SIGN)
 ```
 
-**A passive, monotone-decaying memory friction kernel produces an effective mass that is negative.** A negative mass is not a mild correction — it is a runaway, an instability, the absence of any stable resonance. Physically it is obvious in hindsight: a friction kernel only ever *removes* energy (with a delay); it can never *store and return* the kinetic energy that inertia requires. You cannot build momentum out of drag.
+**A pointwise-positive (forgetting) memory friction kernel produces a low-frequency effective mass with the wrong sign, `m_eff < 0`.** Non-negativity alone is enough — the kernel need not even be monotone. Physically it is obvious in hindsight: a friction kernel only ever *removes* energy (with a delay); it can never *store and return* the kinetic energy that inertia requires. You cannot build momentum out of drag.
+
+Two corrections to how an earlier version of this essay put it. **First, the wrong-sign mass is not a physical "runaway."** The exact first-order-with-memory system here has stable (real) poles; the instability appears *only* if you truncate the low-frequency expansion into a fake second-order ODE, which manufactures a spurious high-frequency pole. So the honest statement is: a positive forgetting kernel gives an `ω²` coefficient of the wrong sign for inertia — *no stable positive-mass interpretation* — not an instability. **Second, the forbidden class is "pointwise-positive forgetting," not "passive."** Passivity is a frequency-domain condition (a positive-real response, `Re K̂(ω) ≥ 0`), and a passive kernel is *allowed* to dip negative in time. A passive kernel with a negative tail lobe **can** produce positive inertia — see the next paragraph. The thing that cannot is a kernel that stays non-negative for all time.
 
 To get *positive* inertia this way you would need `∫ s K(s) ds < 0`, i.e. the kernel must go **negative** somewhere — it must overshoot. A kernel with a negative lobe is precisely the signature of an underdamped, *reactive* degree of freedom hiding underneath, not a monotone dissipative one. Which brings us to the other channel.
 
@@ -108,7 +112,7 @@ k_eff     = k + gA/B          renormalized stiffness   — this is FEEDBACK on t
 m_eff     = gA/B³   > 0       EMERGENT INERTIA
 ```
 
-Now there *is* a positive effective mass. And note its form: `m_eff = gA / B³` — a coupling (`gA`) divided by a power of the background mode's stiffness/rate (`B`). It is not a substance; it is an induced effect of coupling to a background variable, and it **vanishes as `B → ∞`**. This is exactly the Higgs pattern: mass emerges from coupling to a background field and disappears when that field decouples (here: when the background mode becomes infinitely fast/stiff).
+Now there *is* a positive effective mass. And note its form: `m_eff = gA / B³` — a coupling (`gA`) divided by a power of the background mode's stiffness/rate (`B`). It is not a substance; it is an induced effect of coupling to a background variable, and it **vanishes as `B → ∞`** (at fixed coupling). This is *Higgs-like only in a weak, effective-field-theory sense*: an inertial coefficient is **induced by coupling to an eliminated background degree of freedom, and vanishes under fixed-coupling adiabatic decoupling**. Read no more into it than that — there is no gauge symmetry, no symmetry breaking, no vacuum expectation value; `B` is a relaxation rate, not a field stiffness or a relativistic invariant mass; and if `gA` were scaled together with `B`, even the clean decoupling story would break.
 
 But "there is an `ω²` term" is not the same as "there is a physical resonance." Two coupled first-order ODEs *always* give a formally second-order characteristic polynomial. Whether the system is a genuine underdamped oscillator (complex poles, real momentum) or just a disguised pair of overdamped relaxations (real poles, no momentum) depends on the parameters. The poles are the eigenvalues of `[[−k, g], [−A, −B]]`; they are complex — genuine oscillation — only when
 
@@ -120,15 +124,15 @@ A small toy sweep (fix `k = 1`, `gA = 4`, vary the background rate `B`):
 
 | `B` | poles | regime | `m_eff` | `γ_eff` |
 |----:|:-----:|:------:|-------:|-------:|
-| 0.5 | −0.75 ± 1.98i | inertial, but `γ_eff<0` (unstable) | 32 | −15 |
-| 1.0 | −1.0 ± 2.0i | inertial (unstable) | 4.0 | −3.0 |
-| 2.0 | −1.5 ± 1.94i | inertial (marginal, `γ_eff=0`) | 0.5 | 0.0 |
+| 0.5 | −0.75 ± 1.98i | stable oscillator; `γ_eff<0` = reduced model out of range | 32 | −15 |
+| 1.0 | −1.0 ± 2.0i | stable oscillator; `γ_eff<0` = reduced model out of range | 4.0 | −3.0 |
+| 2.0 | −1.5 ± 1.94i | stable oscillator (`γ_eff=0`) | 0.5 | 0.0 |
 | **4.0** | **−2.5 ± 1.32i** | **inertial, stable ✓** | **0.0625** | **0.75** |
 | 8.0 | −1.63 (real) | feedback only | 0.008 | 0.94 |
 | 20 | −1.21 (real) | feedback only | 5e-4 | 0.99 |
 | 100 | −1.04 (real) | feedback only | 5e-6 | ~1.0 |
 
-Two things to read off. First, complex poles — real inertia — appear only when the background mode is **slow or comparable** to the system; in the **adiabatic (fast-bath) limit `B → ∞`, `m_eff → 0`** and you are left with pure renormalized feedback. Second, inertia is not free: in the strongly reactive corner where `m_eff` is large, `γ_eff` goes negative — the system destabilizes. The window of *stable* genuine inertia is bounded.
+Two things to read off. First, complex poles — real inertia — appear only when the background mode is **slow or comparable** to the system; in the **adiabatic (fast-bath) limit `B → ∞`, `m_eff → 0`** and you are left with pure renormalized feedback. Second — and this corrects an earlier version of this essay — a negative `γ_eff` does **not** mean the system is unstable. With `k, B, gA > 0` the full two-mode system is *always* linearly stable (`tr M = −(k+B) < 0`, `det M = kB + gA > 0`); the row `k=1, gA=4, B=1` gives `λ = −1 ± 2i`, a perfectly stable underdamped oscillator. A negative `γ_eff` only signals that the **truncated low-frequency expansion has left its range of validity** — you can no longer use its damping coefficient to predict the true pole locations. The reduced description stops being a reliable pole model; the exact system is fine.
 
 ## 5. The two axes
 
@@ -136,6 +140,12 @@ Putting the channels together, inertia and feedback are indeed **two projections
 
 1. **Channel.** Reactive/state memory (can store *and* return energy) → inertia. Dissipative/friction memory (can only remove) → feedback, and its naive `ω²` term has the wrong sign.
 2. **Timescale.** Memory comparable to the system's own dynamics → inertia. Adiabatic, fast-relaxing memory → feedback (the induced mass vanishes).
+
+Two honest caveats on this "two projections" language, both owed to a careful external review:
+
+- **The reactive and dissipative parts are not freely separable.** Causality ties them together — the Kramers–Kronig relations make the real and imaginary parts of any causal response determine each other (nonlocally in frequency). And the split is *representation-dependent*: in the Mori–Zwanzig framework the memory kernel, the noise, and the projection are one package, not a unique objective object. So "inertia = reactive part, feedback = dissipative part" holds *within a fixed scalar velocity-kernel representation*, not as a frame-free law.
+
+- **The two channels are really one criterion.** Integrating the eliminated mode `z` out by parts turns Channel B into a velocity-memory kernel `K_B(s) = δ(s) − (gA/B) e^{−Bs}` — which has a **negative lobe**, so `∫ s K_B ds = −gA/B³ < 0`, giving `m_eff = gA/B³ > 0`. Channels A and B thus collapse into a single test: **does the causal velocity kernel have a negative first moment?** Monotone forgetting (A) never does; a hidden reactive mode (B) does. That is the whole result in one line. (One boundary: this assumes finite moments. For power-law / fractional memory, where `∫ s K` diverges, there is no ordinary `m_eff` — you get fractional damping and storage, not a clean second-order mass.)
 
 ## 6. What this says about "karma," habit, and history-dependent systems
 
@@ -151,6 +161,8 @@ For any specific history-dependent system you want to call "inertial," write dow
 2. **Is its memory time non-adiabatic** — comparable to the system's own timescale, not vanishingly fast? If the memory is fast relative to the dynamics, `m_eff → 0` ⇒ feedback.
 
 Only if **both** are yes does the second-order/inertial description carry real content. Otherwise the honest word is *feedback*.
+
+A caveat on this test, again from review: a negative first moment is genuinely **necessary and sufficient for positive *apparent* low-frequency mass** in a scalar finite-moment kernel. But *stable, genuine* inertia asks for more — the effective damping must stay positive in the relevant band (passivity), all poles must sit in the stable half-plane, a complex pole pair must actually exist (`(k−B)² < 4gA` in Channel B), and the resonance must lie inside the validity range of the reduced model. The two-part test is the right quick sanity check, not the full theorem.
 
 ---
 
