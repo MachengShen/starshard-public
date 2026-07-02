@@ -1,0 +1,7 @@
+{{- $cur := .Get "current" -}}
+<nav class="lang-switch" aria-label="language">
+  {{- if eq $cur "en" -}}<strong>English</strong>{{- else -}}<a href="{{ relref .Page "mind-instrument-and-witness.md" }}">English</a>{{- end -}}
+  <span class="sep">·</span>
+  {{- if eq $cur "zh" -}}<strong>中英混搭</strong>{{- else -}}<a href="{{ relref .Page "mind-instrument-and-witness-zh.md" }}">中英混搭</a>{{- end -}}
+</nav>
+<style>.lang-switch{margin:-.4rem 0 2rem;font-size:.95rem;opacity:.9}.lang-switch a{text-decoration:underline}.lang-switch strong{opacity:1}.lang-switch .sep{opacity:.4;margin:0 .5rem}</style>

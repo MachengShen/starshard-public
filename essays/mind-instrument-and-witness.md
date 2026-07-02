@@ -6,6 +6,8 @@ description: "One question — is consciousness special to humans or everywhere?
 section_label: essay
 ---
 
+{{< langswitch current="en" >}}
+
 *Macheng Shen*
 
 *Epistemic status: a working synthesis, not a finished theory. I am scientifically trained, and the language I actually think in is the language of dynamics, information, and physics — not Sanskrit or Classical Chinese. So this is my attempt to build a modern-scientific map of consciousness and of contemplative practice, in a language I can reason in rather than only "feel." It includes its own failure: about halfway through, an adversarial review showed that a good part of my tidy synthesis had become the very thing it was trying to avoid, and I've left that in, because the failure is the most useful part. Disclosure, per the norm of this site: this was produced through my agent system and then checked by me. Corrections welcome — [the source is on GitHub](https://github.com/MachengShen/starshard-public).*
