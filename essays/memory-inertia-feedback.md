@@ -6,6 +6,8 @@ description: "A system whose present is shaped by its accumulated past can be mo
 section_label: essay
 ---
 
+{{< langswitch current="en" en="memory-inertia-feedback.md" zh="memory-inertia-feedback-zh.md" >}}
+
 *Macheng Shen*
 
 *Epistemic status: a self-contained derivation plus a small reproducible toy, done in an afternoon. The core linear-response results (Sections 3–4) I am confident in — they are textbook Mori–Zwanzig once you see the sign. The framing claims (Sections 1, 6) are `design_hypothesis`: offered to invite critique, not asserted as settled. Disclosure, per the norm of this blog: the derivation and this write-up were produced through my agent system, which I then checked. Corrections welcome.*
